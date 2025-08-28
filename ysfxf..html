@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>连环替代法因素分析工具</title>
+    <style>
+        :root {
+            --primary: #4169E1;
+            --primary-dark: #3151B9;
+            --danger: #DC503C;
+            --danger-dark: #C03A2A;
+            --success: #00B050;
+            --light-bg: #f5f7fa;
+            --border: #ddd;
+            --text: #333;
+            --text-light: #888;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            position: relative;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--text-light);
+            font-size: 16px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .formula-input {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        input[type="text"], input[type="number"] {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 16px;
+            min-width: 200px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn i {
+            font-size: 18px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 4px 8px rgba(65, 105, 225, 0.3);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: var(--danger-dark);
+            box-shadow: 0 4px 8px rgba(220, 80, 60, 0.3);
+        }
+        
+        .instructions {
+            font-size: 14px;
+            color: var(--text-light);
+            font-style: italic;
+            margin-top: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #f1f3f5;
+        }
+        
+        .positive {
+            color: var(--success);
+            font-weight: bold;
+        }
+        
+        .negative {
+            color: var(--danger);
+            font-weight: bold;
+        }
+        
+        .results-table {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .results-table th {
+            background-color: #5a6268;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .factors-input {
+            margin-top: 20px;
+        }
+        
+        .factor-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .factor-name {
+            width: 100px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .factor-input {
+            width: 180px;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+        
+        .url-guide {
+            background-color: #e9f7ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .url-guide h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .url-guide ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .url-guide li {
+            margin-bottom: 10px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-light);
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .formula-input {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .factor-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .factor-input {
+                width: 100%;
+            }
+            
+            .results-table {
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>连环替代法因素分析工具</h1>
+            <p class="subtitle">网页版 - 替代Excel VBA的专业分析工具</p>
+        </header>
+        
+        <div class="section" id="formula-section">
+            <h2><i class="fas fa-calculator"></i> 步骤1: 输入计算公式</h2>
+            <div class="formula-input">
+                <input type="text" id="formula-input" placeholder="例如: A*B*C 或 (A+B)/C">
+                <button class="btn btn-primary" id="init-btn">
+                    <i class="fas fa-play"></i> 初始化分析
+                </button>
+            </div>
+            <p class="instructions">请输入计算公式（使用大写字母表示因素，如A*B*C或(A+B)/C）</p>
+        </div>
+        
+        <div class="section hidden" id="factors-section">
+            <h2><i class="fas fa-list"></i> 步骤2: 输入因素值</h2>
+            <div id="factors-container"></div>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" id="calculate-btn">
+                    <i class="fas fa-calculator"></i> 计算分析结果
+                </button>
+                <button class="btn btn-danger" id="reset-btn">
+                    <i class="fas fa-redo"></i> 重新初始化
+                </button>
+            </div>
+        </div>
+        
+        <div class="section hidden" id="results-section">
+            <h2><i class="fas fa-chart-line"></i> 分析结果</h2>
+            <div style="overflow-x: auto;">
+                <table id="analysis-table">
+                    <thead>
+                        <tr>
+                            <th>因素名称</th>
+                            <th>计划值</th>
+                            <th>实际值</th>
+                            <th>单因素差异</th>
+                            <th>连环影响额</th>
+                            <th>影响权重</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-body">
+                        <!-- 结果将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <h3 style="margin-top: 30px;"><i class="fas fa-tasks"></i> 分析汇总</h3>
+            <table class="results-table">
+                <tr>
+                    <th>项目</th>
+                    <th>值</th>
+                </tr>
+                <tr>
+                    <td>计划总值</td>
+                    <td id="plan-total">0.00</td>
+                </tr>
+                <tr>
+                    <td>实际总值</td>
+                    <td id="actual-total">0.00</td>
+                </tr>
+                <tr>
+                    <td>总差异</td>
+                    <td id="total-diff">0.00</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="url-guide">
+            <h3><i class="fas fa-globe"></i> 如何生成网址访问此工具？</h3>
+            <ol>
+                <li>将本页HTML代码保存为<code>analysis.html</code>文件</li>
+                <li>要本地访问：直接双击该文件在浏览器中打开</li>
+                <li>要在线访问：
+                    <ul>
+                        <li>使用GitHub Pages、Netlify或Vercel等免费服务部署</li>
+                        <li>上传到您的网站服务器</li>
+                        <li>使用Python本地服务器：<code>python -m http.server</code></li>
+                    </ul>
+                </li>
+            </ol>
+            <p>提示：在线部署后，您可以通过唯一的URL分享给他人使用。</p>
+        </div>
+        
+        <footer>
+            <p>连环替代法因素分析工具 &copy; 2023 | 网页版</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const formulaInput = document.getElementById('formula-input');
+            const initBtn = document.getElementById('init-btn');
+            const factorsSection = document.getElementById('factors-section');
+            const factorsContainer = document.getElementById('factors-container');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const resultsSection = document.getElementById('results-section');
+            const resultsBody = document.getElementById('results-body');
+            const planTotalEl = document.getElementById('plan-total');
+            const actualTotalEl = document.getElementById('actual-total');
+            const totalDiffEl = document.getElementById('total-diff');
+            
+            let factors = [];
+            let formula = '';
+            
+            // 初始化分析
+            initBtn.addEventListener('click', function() {
+                formula = formulaInput.value.trim();
+                
+                if (!formula) {
+                    alert('请输入计算公式！');
+                    return;
+                }
+                
+                // 提取因素
+                factors = extractFactors(formula);
+                
+                if (factors.length === 0) {
+                    alert('无法从公式中提取有效因素，请检查公式格式。');
+                    return;
+                }
+                
+                // 显示因素输入部分
+                renderFactorsInput();
+                factorsSection.classList.remove('hidden');
+                
+                // 滚动到因素输入部分
+                factorsSection.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // 提取因素（按出现顺序）
+            function extractFactors(formula) {
+                const factorSet = new Set();
+                const factorsInOrder = [];
+                
+                for (let char of formula) {
+                    if (char.match(/[A-Za-z]/) && !factorSet.has(char.toUpperCase())) {
+                        factorSet.add(char.toUpperCase());
+                        factorsInOrder.push(char.toUpperCase());
+                    }
+                }
+                
+                return factorsInOrder;
+            }
+            
+            // 渲染因素输入界面
+            function renderFactorsInput() {
+                factorsContainer.innerHTML = '';
+                
+                factors.forEach(factor => {
+                    const factorRow = document.createElement('div');
+                    factorRow.className = 'factor-row';
+                    
+                    factorRow.innerHTML = `
+                        <div class="factor-name">因素 ${factor}</div>
+                        <input type="number" step="any" class="factor-input plan-value" placeholder="计划值" data-factor="${factor}">
+                        <input type="number" step="any" class="factor-input actual-value" placeholder="实际值" data-factor="${factor}">
+                    `;
+                    
+                    factorsContainer.appendChild(factorRow);
+                });
+            }
+            
+            // 计算分析结果
+            calculateBtn.addEventListener('click', function() {
+                // 收集因素值
+                const factorValues = {};
+                let allValuesEntered = true;
+                
+                factors.forEach(factor => {
+                    const planInput = document.querySelector(`.plan-value[data-factor="${factor}"]`);
+                    const actualInput = document.querySelector(`.actual-value[data-factor="${factor}"]`);
+                    
+                    if (!planInput.value || !actualInput.value) {
+                        allValuesEntered = false;
+                        return;
+                    }
+                    
+                    factorValues[factor] = {
+                        plan: parseFloat(planInput.value),
+                        actual: parseFloat(actualInput.value),
+                        diff: parseFloat(actualInput.value) - parseFloat(planInput.value)
+                    };
+                });
+                
+                if (!allValuesEntered) {
+                    alert('请为所有因素输入计划值和实际值！');
+                    return;
+                }
+                
+                // 执行连环替代法分析
+                const analysisResults = performChainReplacementAnalysis(formula, factors, factorValues);
+                
+                // 显示结果
+                renderResults(analysisResults, factorValues);
+                resultsSection.classList.remove('hidden');
+                
+                // 滚动到结果部分
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // 执行连环替代法分析
+            function performChainReplacementAnalysis(formula, factors, factorValues) {
+                const results = [];
+                
+                // 计算基准值（全部计划值）
+                let baseValue = calculateFormulaValue(formula, factors, factorValues, 'plan');
+                
+                // 计算实际总值（全部实际值）
+                const totalActual = calculateFormulaValue(formula, factors, factorValues, 'actual');
+                
+                let previousValue = baseValue;
+                
+                // 连环替代计算
+                for (let i = 0; i < factors.length; i++) {
+                    const currentValue = calculateFormulaValue(
+                        formula, 
+                        factors, 
+                        factorValues, 
+                        'mixed', 
+                        i + 1 // 前i+1个因素使用实际值
+                    );
+                    
+                    const impact = currentValue - previousValue;
+                    const weight = (totalActual - baseValue) !== 0 ? 
+                                  impact / (totalActual - baseValue) : 0;
+                    
+                    results.push({
+                        factor: factors[i],
+                        impact: impact,
+                        weight: weight
+                    });
+                    
+                    previousValue = currentValue;
+                }
+                
+                // 返回结果
+                return {
+                    results: results,
+                    baseValue: baseValue,
+                    totalActual: totalActual,
+                    totalDiff: totalActual - baseValue
+                };
+            }
+            
+            // 计算公式值
+            function calculateFormulaValue(formula, factors, factorValues, mode, replaceCount = 0) {
+                let expression = formula;
+                
+                // 替换因素为对应的值
+                factors.forEach((factor, index) => {
+                    let value;
+                    
+                    if (mode === 'plan') {
+                        value = factorValues[factor].plan;
+                    } else if (mode === 'actual') {
+                        value = factorValues[factor].actual;
+                    } else if (mode === 'mixed') {
+                        // 前replaceCount个因素使用实际值，其余使用计划值
+                        value = (index < replaceCount) ? 
+                                factorValues[factor].actual : 
+                                factorValues[factor].plan;
+                    }
+                    
+                    // 使用正则表达式确保精确替换（避免部分匹配）
+                    const regex = new RegExp(factor, 'g');
+                    expression = expression.replace(regex, value);
+                });
+                
+                // 计算表达式
+                try {
+                    // 使用Function构造函数避免eval的安全问题
+                    return (new Function('return ' + expression))();
+                } catch (error) {
+                    console.error('计算公式时出错:', error);
+                    alert('计算公式时出错，请检查公式语法是否正确。');
+                    return 0;
+                }
+            }
+            
+            // 渲染结果表格
+            function renderResults(analysisResults, factorValues) {
+                resultsBody.innerHTML = '';
+                
+                analysisResults.results.forEach(result => {
+                    const row = document.createElement('tr');
+                    
+                    const diffClass = factorValues[result.factor].diff >= 0 ? 'positive' : 'negative';
+                    const impactClass = result.impact >= 0 ? 'positive' : 'negative';
+                    
+                    row.innerHTML = `
+                        <td>${result.factor}</td>
+                        <td>${factorValues[result.factor].plan.toFixed(2)}</td>
+                        <td>${factorValues[result.factor].actual.toFixed(2)}</td>
+                        <td class="${diffClass}">${factorValues[result.factor].diff.toFixed(2)}</td>
+                        <td class="${impactClass}">${result.impact.toFixed(2)}</td>
+                        <td>${(result.weight * 100).toFixed(2)}%</td>
+                    `;
+                    
+                    resultsBody.appendChild(row);
+                });
+                
+                // 更新汇总数据
+                planTotalEl.textContent = analysisResults.baseValue.toFixed(2);
+                actualTotalEl.textContent = analysisResults.totalActual.toFixed(2);
+                
+                totalDiffEl.textContent = analysisResults.totalDiff.toFixed(2);
+                totalDiffEl.className = analysisResults.totalDiff >= 0 ? 'positive' : 'negative';
+            }
+            
+            // 重新初始化
+            resetBtn.addEventListener('click', function() {
+                if (confirm('确定要清除当前结果并重新开始吗？')) {
+                    // 重置界面
+                    formulaInput.value = '';
+                    factorsSection.classList.add('hidden');
+                    resultsSection.classList.add('hidden');
+                    
+                    // 滚动到顶部
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+            
+            // 示例公式
+            formulaInput.value = "A*B*C";
+        });
+    </script>
+</body>
+</html>
